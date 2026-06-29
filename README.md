@@ -26,6 +26,10 @@ python -m pip install -r requirements.txt
 
 ## Run it
 
+Two ways — pick one. Either runs the same hands-on.
+
+**A. As a script**
+
 ```shell
 # 1. First run (default C=1.0)
 python train.py
@@ -38,7 +42,17 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db
 # open http://127.0.0.1:5000
 ```
 
-In the UI, open the `intro-to-mlops` experiment, tick both runs and click **Compare** to see parameters and metrics side by side, and open a run to view its confusion-matrix plot and download the model.
+**B. As a notebook**
+
+```shell
+jupyter notebook notebook.ipynb
+```
+
+Run all cells, change `C` (e.g. to `0.01`), run again, then start the UI as above.
+
+## The hands-on
+
+In the MLflow UI, open the `intro-to-mlops` experiment, tick both runs and click **Compare** to see parameters and metrics side by side, and open a run to view its confusion-matrix plot and download the model. That "which settings gave the best score, and exactly how?" comparison is the whole point.
 
 ## Going further
 
