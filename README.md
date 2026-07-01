@@ -54,12 +54,30 @@ Run all cells, change `C` (e.g. to `0.01`), run again, then start the UI as abov
 
 In the MLflow UI, open the `intro-to-mlops` experiment, tick both runs and click **Compare** to see parameters and metrics side by side, and open a run to view its confusion-matrix plot and download the model. That "which settings gave the best score, and exactly how?" comparison is the whole point.
 
+## Serve it: MLflow → BentoML
+
+[`service.py`](service.py) loads the most recent tracked run and wraps its model in a minimal [BentoML](https://www.bentoml.com) API — no run ID to copy by hand.
+
+```shell
+python -m pip install bentoml   # already in requirements.txt
+bentoml serve service:MLopsService
+# open http://127.0.0.1:3000 for interactive docs
+```
+
+Call it:
+
+```shell
+curl -X POST http://127.0.0.1:3000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"features": [[14.0, 20.0, 90.0, 600.0, 0.1, 0.1, 0.1, 0.05, 0.2, 0.06, 0.4, 1.0, 3.0, 40.0, 0.006, 0.02, 0.03, 0.01, 0.02, 0.003, 16.0, 25.0, 105.0, 900.0, 0.14, 0.25, 0.3, 0.12, 0.3, 0.08]]}'
+```
+
 ## Going further
 
 - Add `mlflow.sklearn.autolog()` before `fit()` to capture params/metrics/model in one line.
 - Commit your changes to git so each run is tied to a code version.
-- Register your best model in the MLflow Model Registry.
-- Automate the run in CI, then serve and monitor the model.
+- Register your best model in the MLflow Model Registry, instead of always serving the latest run.
+- Automate the run in CI, then monitor the served model's predictions.
 
 ## License & attribution
 
