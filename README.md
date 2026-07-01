@@ -50,6 +50,50 @@ jupyter notebook notebook.ipynb
 
 Run all cells, change `C` (e.g. to `0.01`), run again, then start the UI as above.
 
+**C. A second, simpler notebook — churn + autolog**
+
+[`notebook2.ipynb`](notebook2.ipynb) predicts customer **churn** from a CSV
+([`churn.csv`](churn.csv)) with a Random Forest, and uses one line —
+`mlflow.sklearn.autolog()` — to capture parameters, metrics, and the model
+automatically (no manual `log_param`/`log_metric`).
+
+```shell
+jupyter notebook notebook2.ipynb
+```
+
+Run all cells, change `n_estimators`/`max_depth`, run again, then compare the
+runs in the `churn-prediction` experiment in the UI. It also includes an optional
+`GridSearchCV` section — autolog is set to `max_tuning_runs=None` so it logs a
+child run for **every** parameter combination (the default, `5`, only keeps the
+top 5, which is fine for a bigger search but would hide most of this small grid).
+
+**D. Manage models — the Model Registry**
+
+[`notebook3.ipynb`](notebook3.ipynb) takes the best run from notebooks 1 and 2
+and registers each in the **MLflow Model Registry** — the standard way to version
+models and mark which one is in production. It shows the modern workflow: register
+a version, tag it, point the `@champion` **alias** at it, load with
+`models:/<name>@champion` (no run IDs in your code), then promote a `@challenger`
+by moving the alias. Run notebooks 1 and 2 first, then run all cells.
+
+```shell
+jupyter notebook notebook3.ipynb
+```
+
+**E. Model decay & monitoring**
+
+[`notebook4.ipynb`](notebook4.ipynb) takes the churn model from notebook 2 and
+simulates 12 weeks of production traffic that **drifts** starting week 6
+(customers skew newer, file more support tickets). Each week's accuracy is
+logged to MLflow as a step-indexed metric — the monitoring dashboard is just
+that curve — a threshold flags the decay, and the simplest real fix, retraining
+on the recent drifted data, recovers most of the lost accuracy. Run notebook 2
+first (for `churn.csv` — already included — and matching feature columns).
+
+```shell
+jupyter notebook notebook4.ipynb
+```
+
 ## The hands-on
 
 In the MLflow UI, open the `intro-to-mlops` experiment, tick both runs and click **Compare** to see parameters and metrics side by side, and open a run to view its confusion-matrix plot and download the model. That "which settings gave the best score, and exactly how?" comparison is the whole point.
@@ -76,8 +120,9 @@ curl -X POST http://127.0.0.1:3000/predict \
 
 - Add `mlflow.sklearn.autolog()` before `fit()` to capture params/metrics/model in one line.
 - Commit your changes to git so each run is tied to a code version.
-- Register your best model in the MLflow Model Registry, instead of always serving the latest run.
-- Automate the run in CI, then monitor the served model's predictions.
+- Register your best model in the MLflow Model Registry, instead of always serving the latest run — see [`notebook3.ipynb`](notebook3.ipynb).
+- Automate the run in CI.
+- Monitor the served model for decay and retrain when it drops — see [`notebook4.ipynb`](notebook4.ipynb).
 
 ## License & attribution
 
